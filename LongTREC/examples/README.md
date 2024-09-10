@@ -7,7 +7,7 @@ python evaluate_instance.py --gtf annotation.gtf  --samfile mm2.sam
 
 ### Output 
 
-The output consists of four values, e.g. `#E	#A	E_min	A_min`, where:
+The output consists of four tab-separated values, e.g. `#E	#A	E_min	A_min`, where:
 
 * #E: Number of exact exon alignments.
 * #A: Number of exact OR approximate exon alignments (alnmt overlaps true exon).
@@ -18,7 +18,7 @@ The output consists of four values, e.g. `#E	#A	E_min	A_min`, where:
 ### Datasets
 
 
-dataset1: no errors, no canonical splices AG-GT
-dataset2: 7% errors, no canonical splices AG-GT
-dataset3: no errors, only canonical splices AG-GT
-dataset4: 7% errors, only canonical splices AG-GT
+* dataset1: no errors, no canonical splices AG-GT
+* dataset2: 7% errors, no canonical splices AG-GT
+* dataset3: no errors, only canonical splices AG-GT
+* dataset4: 7% errors, only canonical splices AG-GT
