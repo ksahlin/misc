@@ -124,11 +124,16 @@ def get_statistics(true_sites, aligned_sites):
                 if t_stop - t_start < smallest_approx:
                     smallest_approx = t_stop - t_start               
                 # break
+    if smallest_exact == 2**32:
+        smallest_exact = '-'
+    if smallest_approx == 2**32:
+        smallest_approx = '-'
 
-    print('Number of exact exon alignments:', nr_exact)
-    print('Smallest exon with an exact exon alignment:', smallest_exact)
-    print('Number of exact OR approximate exon alignments (alnmt overlaps true exon):', nr_approx)
-    print('Smallest exon with an exact OR approximate exon alignment:', smallest_approx)
+    print("{0}\t{1}\t{2}\t{3}".format(nr_exact, nr_approx, smallest_exact, smallest_approx))
+    # print('Number of exact exon alignments:', nr_exact)
+    # print('Smallest exon with an exact exon alignment:', smallest_exact)
+    # print('Number of exact OR approximate exon alignments (alnmt overlaps true exon):', nr_approx)
+    # print('Smallest exon with an exact OR approximate exon alignment:', smallest_approx)
 
 
 class Read:

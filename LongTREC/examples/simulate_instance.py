@@ -31,13 +31,16 @@ def reverse_complement(string):
 def main(args):
     mkdir_p(args.outfolder)
     genome = [''.join([random.choice('ACGT') for i in range(args.seglen)]) for j in range(args.exon_max)]
-    genome_out = open(os.path.join(args.outfolder,'genome.fa'), 'w')
-    genome_out.write('>{0}\n{1}'.format('genome',''.join([s for s in genome])))
-    genome_out.close()
 
     query = []
     for i in range(args.exon_min, args.exon_max):
         query.append(genome[i][:i]) # takes out subsegment of size i from segment i in genome 
+        if args.canonical:
+            genome[i] = genome[i][:i] + 'GT' + genome[i][i+2 : args.seglen-2] + 'AG'
+
+    genome_out = open(os.path.join(args.outfolder,'genome.fa'), 'w')
+    genome_out.write('>{0}\n{1}'.format('genome',''.join([s for s in genome])))
+    genome_out.close()
 
     if args.error_rate > 0: # introduce errors
         read = ''.join([s for s in query])
@@ -75,6 +78,8 @@ if __name__ == '__main__':
     parser.add_argument('--exon_min', type=int, default=1, help='exon_min.')
     parser.add_argument('--exon_max', type=int, default=100, help='exon_max.')
     parser.add_argument('--error_rate', type=float, default=0.0, help='Number of reads.')
+    parser.add_argument('--canonical', action= 'store_true', help='Olny simulate canonical spice sites (GT-AG).')
+
     args = parser.parse_args()
 
 
