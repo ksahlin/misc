@@ -69,7 +69,7 @@ def main(args):
     gtf_out.write('{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\n'.format('genome','sim','transcript', 1, 1+args.exon_max*args.seglen, '.', '+', '.', 'gene_id "ENSG00000223972";' ) )
     for i in range(args.exon_min, args.exon_max):
         start = 1 + i * args.seglen
-        stop  = 1 + i * args.seglen + i
+        stop  = 1 + i * args.seglen + i - 1 # end coordinate is inclusive 
         gtf_out.write('{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\n'.format('genome','sim','exon', start, stop, '.', '+', '.', 'gene_id "ENSG00000223972";' ) )
     gtf_out.close()
 
