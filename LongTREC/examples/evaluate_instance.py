@@ -34,7 +34,7 @@ def get_true_exon_sites(gtf_file):
         info = line.split()
         feature, start, stop  = info[2], int(info[3]), int(info[4])
         if feature == 'exon':
-            true_sites.append((start, stop))
+            true_sites.append((start, stop+1)) # converting back to exclusive end coordinate
 
     annotated_splice_junctions = []
     gtf_file.seek(0)
