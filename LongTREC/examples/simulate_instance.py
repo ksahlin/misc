@@ -65,12 +65,12 @@ def main(args):
 
     # construct gtf
     gtf_out = open(os.path.join(args.outfolder,'annotation.gtf'), 'w')
-    gtf_out.write('{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\n'.format('genome','sim','gene', 1, 1+args.exon_max*args.seglen, '.', '+', '.', 'info' ) )
-    gtf_out.write('{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\n'.format('genome','sim','transcript', 1, 1+args.exon_max*args.seglen, '.', '+', '.', 'info' ) )
+    gtf_out.write('{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\n'.format('genome','sim','gene', 1, 1+args.exon_max*args.seglen, '.', '+', '.', 'gene_id "ENSG00000223972";' ) )
+    gtf_out.write('{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\n'.format('genome','sim','transcript', 1, 1+args.exon_max*args.seglen, '.', '+', '.', 'gene_id "ENSG00000223972";' ) )
     for i in range(args.exon_min, args.exon_max):
         start = 1 + i * args.seglen
         stop  = 1 + i * args.seglen + i
-        gtf_out.write('{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\n'.format('genome','sim','exon', start, stop, '.', '+', '.', 'info' ) )
+        gtf_out.write('{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\n'.format('genome','sim','exon', start, stop, '.', '+', '.', 'gene_id "ENSG00000223972";' ) )
     gtf_out.close()
 
 
