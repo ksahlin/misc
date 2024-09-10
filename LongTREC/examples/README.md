@@ -1,5 +1,7 @@
 ### Run instructions
 
+Install [minimap2](https://github.com/lh3/minimap2/tree/master?tab=readme-ov-file#getting-started).
+
 ```
 minimap2 --eqx -a [PARAM] genome.fa gene.fa > mm2.sam
 python evaluate_instance.py --gtf annotation.gtf  --samfile mm2.sam
@@ -18,7 +20,7 @@ The output consists of four tab-separated values, e.g. `#E	#A	E_min	A_min`, wher
 ### Datasets
 
 
-* dataset1: no errors, no canonical splices AG-GT
-* dataset2: 7% errors, no canonical splices AG-GT
-* dataset3: no errors, only canonical splices AG-GT
-* dataset4: 7% errors, only canonical splices AG-GT
+* dataset1: no errors, no canonical splices GT-AG
+* dataset2: 7% errors, no canonical splices GT-AG
+* dataset3: no errors, only canonical splices GT-AG
+* dataset4: 7% errors, only canonical splices GT-AG

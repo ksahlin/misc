@@ -30,6 +30,7 @@ def reverse_complement(string):
 
 def main(args):
     mkdir_p(args.outfolder)
+
     genome = [''.join([random.choice('ACGT') for i in range(args.seglen)]) for j in range(args.exon_max)]
 
     query = []
@@ -37,6 +38,13 @@ def main(args):
         query.append(genome[i][:i]) # takes out subsegment of size i from segment i in genome 
         if args.canonical:
             genome[i] = genome[i][:i] + 'GT' + genome[i][i+2 : args.seglen-2] + 'AG'
+
+    if args.repeats > 0:
+        original = ''.join([s for s in genome])
+        for j in range(args.repeats):
+            muts = set(random.sample(range(len(original)),int(len(original)*args.repeat_mutrate)))
+            copy = "".join([original[i] if i not in muts else random.choice(['', random.choice("ACGT"), original[i] + random.choice("ACGT")]) for i in range(len(original))])
+            genome.append(copy)
 
     genome_out = open(os.path.join(args.outfolder,'genome.fa'), 'w')
     genome_out.write('>{0}\n{1}'.format('genome',''.join([s for s in genome])))
@@ -78,7 +86,9 @@ if __name__ == '__main__':
     parser.add_argument('--exon_min', type=int, default=1, help='exon_min.')
     parser.add_argument('--exon_max', type=int, default=100, help='exon_max.')
     parser.add_argument('--error_rate', type=float, default=0.0, help='Number of reads.')
-    parser.add_argument('--canonical', action= 'store_true', help='Olny simulate canonical spice sites (GT-AG).')
+    parser.add_argument('--canonical', action= 'store_true', help='Only simulate canonical spice sites (GT-AG).')
+    parser.add_argument('--repeats', type=int, default=0, help='Number of repeat copies of gene.')
+    parser.add_argument('--repeat_mutrate', type=float, default=0.025, help='Number of reads.')
 
     args = parser.parse_args()
 
