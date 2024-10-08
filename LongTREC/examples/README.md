@@ -1,6 +1,11 @@
+### Requirements
+
+* Have Python installed and able to execute `python` from a terminal window. 
+* Have minimap2 installed [minimap2](https://github.com/lh3/minimap2/tree/master?tab=readme-ov-file#getting-started). 
+
+
 ### Run instructions
 
-Install [minimap2](https://github.com/lh3/minimap2/tree/master?tab=readme-ov-file#getting-started).
 
 ```
 minimap2 --eqx -a [PARAM] genome.fa gene.fa > mm2.sam
