@@ -76,12 +76,12 @@ def main():
     # k=8
     # BIT_SPACE=32
 
+    #seq = construct_ref(0, G)
+    seq = construct_ref(1, G)
     print('G,w,k,B,E,Exp_B,Pred_B')
     for k in [4,6,8]:
         for w in [2**2, 2**4, 2**6]:
             for BIT_SPACE in [12, 16, 20, 24, 28]:
-                # seq = construct_ref(0, G)
-                seq = construct_ref(1, G)
                 exp = []
                 for v1 in range(BIT_SPACE//2, BIT_SPACE+1): # iterate over several different bit allocations
                     # print()
