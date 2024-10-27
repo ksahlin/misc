@@ -36,16 +36,15 @@ def construct_ref(key, ref_size):
     else:
         # repeats
         origin = ''.join([random.choice('ACGT') for i in range(2**9)])
-        copies = 0
+        copies = 1
         nr_mut = int(len(origin)*0.05) # 5% mut
+        seq_tot = [origin]
         while len(origin)*copies < ref_size:
-            seq_tot = [origin]
-            while copies < 375:
-                muts = set(random.sample(range(len(origin)),nr_mut))
-                cpy = "".join([origin[i] if i not in muts else random.choice("ACGT") for i in range(len(origin))])
-                copies += 1
-                seq_tot.append(cpy)
-            seq = ''.join([s for s in seq_tot])
+            muts = set(random.sample(range(len(origin)),nr_mut))
+            cpy = "".join([origin[i] if i not in muts else random.choice("ACGT") for i in range(len(origin))])
+            copies += 1
+            seq_tot.append(cpy)
+        seq = ''.join([s for s in seq_tot])
 
     # print(len(seq))
 
@@ -76,8 +75,8 @@ def main():
     # k=8
     # BIT_SPACE=32
 
-    #seq = construct_ref(0, G)
-    seq = construct_ref(1, G)
+    seq = construct_ref(0, G)
+    # seq = construct_ref(1, G)
     print('G,w,k,B,E,Exp_B,Pred_B')
     for k in [4,6,8]:
         for w in [2**2, 2**4, 2**6]:
@@ -98,6 +97,6 @@ def main():
                     # print('Collisions: ', m - n)
                 best = sorted(exp)[0]
                 pred_B = round(math.log(G,2)/( math.log(G,2) + math.log(w,2) ), 2)
-                print("{0},{1},{2},{3},{4},{5},{6}".format(G,w,k,BIT_SPACE,best[0],best[1],pred_B) )
+                print("{0},{1},{2},{3},{4},{5},{6}".format(len(seq),w,k,BIT_SPACE,best[0],best[1],pred_B) )
 
 main()

@@ -20,18 +20,21 @@ def plot_fraction(input_csv, outfile, linewidth = 2.5): #, palette, tools, linew
     sns.set(font_scale=1.6) 
     sns.set_style("whitegrid")
     indata = pd.read_csv(input_csv)
-    g = sns.relplot(data=indata, x="B", y="Exp_B", hue="k", style="w", linewidth = linewidth, kind="line") #, #dashes = dashes,
+    g = sns.relplot(data=indata, x="B", y="Exp_B", hue="k", style="w", linewidth = linewidth, kind="line")
+
+    g.ax.set_title("Genome size 2^16 (repeats)") #, #dashes = dashes,
         #col="dataset") # hue_order = tools, # hue="datastructure", style="datastructure",
         # col_wrap=3, col_order=["SIM1", "SIM2", "SIM4"], palette=palette)
         # col_order=["SIM3"],  palette=palette)
     # ax = sns.lineplot(data=indata, x="k", y="unique", hue="datastructure", style="chr", palette = sns.color_palette()[:7])
     # axes = g.axes
-    g.set_titles("Genome size 2^16 (repeats)")
+    # g.set_titles("Genome size 2^16 (repeats)")
     g.set_axis_labels("Bit space B (2^x)", "Fraction of B for base")
     # g.set(ylim=(94, 99), xticks=[50,75,100,150,200,250,300,500])
+    g.set(xticks=[12, 16, 20, 24, 28])
     # g.set_xticks([12, 16, 20, 24, 28])
     g.set_xticklabels(labels=[12, 16, 20, 24, 28]) #rotation=60, 
-    g.tight_layout()
+    # g.tight_layout()
     # g.set(ylim=(95, 100))
     plt.savefig(outfile)
     plt.close()
