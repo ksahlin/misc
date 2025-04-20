@@ -69,6 +69,8 @@ def main(args):
             c1, c2 = ctg_pairs[i]
             read = c1[B - m: B] # up to B-1; 499 (0 indexed here)
             read += c2[B: B + args.R-m] # start at B; 500 (0 indexed here)
+            if args.error_rate > 0:
+                raise('To be implemented - simulate errors here according to error rate')
             reads_out.write('>{0}\n{1}\n'.format('read_cgt_{0}_m_{1}'.format(i, m), read))
     reads_out.close()
 

@@ -28,63 +28,9 @@ def reverse_complement(string):
     return(rev_comp)
 
 
-def get_true_exon_sites(gtf_file):
-    true_sites = []
-    for line in gtf_file:
-        info = line.split()
-        feature, start, stop  = info[2], int(info[3]), int(info[4])
-        if feature == 'exon':
-            true_sites.append((start, stop+1)) # converting back to exclusive end coordinate
 
-    annotated_splice_junctions = []
-    gtf_file.seek(0)
-    all_lines = gtf_file.readlines()
-    for line1, line2 in zip(all_lines[:-1], all_lines[1:]):
-        info = line1.split()
-        feature1, start1, stop1  = info[2], int(info[3]), int(info[4])
-        info = line2.split()
-        feature2, start2, stop2  = info[2], int(info[3]), int(info[4])
-        if feature1 == 'exon' and feature2 == 'exon':
-            annotated_splice_junctions.append((stop1, start2))
-    # print(true_sites)
-    # print(annotated_splice_junctions)
-    return true_sites, annotated_splice_junctions
-
-
-def get_exon_sites(cigar_tuples, first_exon_start, annotated_splice_junctions):
-    ref_pos = first_exon_start
-    exon_sites = [ref_pos]
-    # print(cigar_tuples)
-    for i, (l,t) in enumerate(cigar_tuples):
-        if t == "D":
-            if (ref_pos, ref_pos + l) in annotated_splice_junctions:
-                exon_sites.append( ref_pos )
-                exon_sites.append( ref_pos + l )
-                # print("HEERE")
-            ref_pos += l
-
-        elif t == "=" or t== "M" or t == "X":
-            ref_pos += l
-
-        elif t == "N":
-            splice_start = ref_pos
-            ref_pos += l
-            splice_stop = ref_pos
-            exon_sites.append( splice_start)
-            exon_sites.append( splice_stop )
-
-        elif t == "I" or t == "S" or t == "H": # insertion or softclip
-            ref_pos += 0
-
-        else: # reference skip or soft/hardclip "~", or match =
-            print("UNEXPECTED!", t)
-            sys.exit()
-
-    exon_sites.append(ref_pos)
-    exon_sites = [(exon_sites[i],exon_sites[i+1]) for i in range(0, len(exon_sites), 2) ]  
-    return exon_sites
-
-def get_aligned_exon_sites(read, annotated_splice_junctions):
+def get_breakpoint_site(read, bp_site):
+    aln_start = read.reference_start
     read_cigar_tuples = []
     result = re.split(r'[=DXSMINH]+', read.cigarstring)
     i = 0
@@ -94,9 +40,21 @@ def get_aligned_exon_sites(read, annotated_splice_junctions):
         i += 1
         read_cigar_tuples.append((int(length), type_ ))  
 
-    read_exon_sites = get_exon_sites(read_cigar_tuples, read.reference_start, annotated_splice_junctions)
+    t = read_cigar_tuples[0][1]
+    l = read_cigar_tuples[0][0]
+    if t == "=" or t== "M" or t == "X": # start of read is aligned
+        read_bp_site = aln_start + l
+        flank = 'left'
 
-    return read_exon_sites
+    elif t == "N" or t == "I" or t == "S" or t == "H": # end of read is aligned
+        read_bp_site = aln_start
+        flank = 'right'
+
+    else: # reference skip or soft/hardclip "~", or match =
+        print("UNEXPECTED!", t)
+        sys.exit()
+
+    return read_bp_site, flank
 
 
 def overlap(q_a, q_b, p_a, p_b):
@@ -138,38 +96,51 @@ def get_statistics(true_sites, aligned_sites):
 
 class Read:
     def __init__(self, info):
-        
+        self.read_acc = info[0]
+        self.ref_acc = info[2][:-2]
         self.cigarstring = info[5]
         self.reference_start = int(info[3])
+        self.m = int(self.read_acc.split("_")[-1]) 
+
+class Statistics:
+    def __init__(self, true_bp):
+        self.stats = {}
+        self.true_bp = true_bp
+
+    def add(self, m, flank, aln_bp_site):
+        if m not in self.stats:
+            self.stats[m] = {}
+            self.stats[m]['left'] = [0,0] # exact, approx
+            self.stats[m]['right'] = [0,0] # exact, approx
+        
+
+        if self.true_bp == aln_bp_site:
+            self.stats[m][flank][0] += 1
+        elif max( (self.true_bp - aln_bp_site), (aln_bp_site - self.true_bp) ) < 5:
+            self.stats[m][flank][1] += 1
+
 
 def main(args):
-    true_sites, annotated_splice_junctions = get_true_exon_sites(open(args.gtf, 'r'))
-
-    # get mapping
-    # mappings = {}
+    SAM_bp = args.B + 1 # convert to 1 indexed
+    S = Statistics(SAM_bp)
     for line in open(args.samfile, 'r'):
         if line[0] == "@":
             continue
         else:
             info = line.split()
+            read = Read(info)
             # print(info)
-            if int(info[1]) == 0 or int(info[1])  == 16:
-                read = Read(info)
-                aligned_sites = get_aligned_exon_sites(read, annotated_splice_junctions)
-                # print(read.reference_start)
-                # print(aligned_sites)
-                get_statistics(true_sites, aligned_sites)
+            if int(info[1]) == 0 or int(info[1])  == 16: #primary
+                aln_bp_site, flank = get_breakpoint_site(read, SAM_bp)
+                S.add(read.m, flank, aln_bp_site)
+            else: #Suppl
+                aln_bp_site, flank = get_breakpoint_site(read, SAM_bp)
+                S.add(read.m, flank, aln_bp_site)
 
-    # SAM_file = pysam.AlignmentFile(args.samfile, "r", check_sq=False)
-    # for read in SAM_file.fetch(until_eof=True): # TODO: remove pysam and parse manually
-    #     if read.flag == 0 or read.flag == 16:
-    #         aligned_sites = get_aligned_exon_sites(read, annotated_splice_junctions)
-    #         # print(aligned_sites)
-    #         print(read.reference_start)
-    #         print(aligned_sites)
-    #         get_statistics(true_sites, aligned_sites)
-
-
+    # print stats:
+    print("m\te_l\te_r\ta_l\ta_r")
+    for m in sorted(S.stats.keys()):
+        print(m, S.stats[m]['left'][0], S.stats[m]['right'][0],S.stats[m]['left'][1], S.stats[m]['right'][1])
 
 
 
@@ -177,8 +148,8 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Simulate references", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--samfile', type=str, help='alignment file')
-    parser.add_argument('--gtf', type=str, help='True exon annotation.')
+    parser.add_argument('samfile', type=str, help='alignment file')
+    parser.add_argument('--B', type=int, default = 500, help='True breakpoint location (0-indexed).')
     args = parser.parse_args()
 
 
