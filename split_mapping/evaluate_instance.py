@@ -9,6 +9,18 @@ import shutil
 import glob
 import math
 
+try:
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+except (ImportError, RuntimeError):
+    print("COULD not import matplotlib")
+
+import seaborn as sns
+import pandas as pd
+from matplotlib import pyplot
+
+
 # import pysam
 
 def mkdir_p(path):
@@ -110,14 +122,43 @@ class Statistics:
     def add(self, m, flank, aln_bp_site):
         if m not in self.stats:
             self.stats[m] = {}
-            self.stats[m]['left'] = [0,0] # exact, approx
-            self.stats[m]['right'] = [0,0] # exact, approx
+            self.stats[m]['left'] = [0, 0, 0] # exact, approx, error
+            self.stats[m]['right'] = [0, 0, 0] # exact, approx, error
         
 
         if self.true_bp == aln_bp_site:
             self.stats[m][flank][0] += 1
         elif max( (self.true_bp - aln_bp_site), (aln_bp_site - self.true_bp) ) < 5:
             self.stats[m][flank][1] += 1
+        else:
+            self.stats[m][flank][2] += 1
+
+
+def plot(infile):
+    linewidth = 2.5
+    matplotlib.rcParams.update({'font.size': 18})
+    # sns.set(font_scale=1.5)
+    sns.set(font_scale=1.6) 
+    sns.set_style("whitegrid")
+    indata = pd.read_csv(infile)
+    g = sns.relplot(data=indata, x="m", y="y", hue="type", style="flank", linewidth = linewidth, kind="line")
+
+    g.ax.set_title("Splice alignments") #, #dashes = dashes,
+        #col="dataset") # hue_order = tools, # hue="datastructure", style="datastructure",
+        # col_wrap=3, col_order=["SIM1", "SIM2", "SIM4"], palette=palette)
+        # col_order=["SIM3"],  palette=palette)
+    # ax = sns.lineplot(data=indata, x="k", y="unique", hue="datastructure", style="chr", palette = sns.color_palette()[:7])
+    # axes = g.axes
+    # g.set_titles("Genome size 2^16 (repeats)")
+    g.set_axis_labels("M (#nt left of breakpoint)", "Fraction per type")
+    # g.set(ylim=(94, 99), xticks=[50,75,100,150,200,250,300,500])
+    g.set(xticks=[x for x in range(0, 160, 10)]) #[0, 10, 20, 30, 40, 50, 60]
+    # g.set_xticks([12, 16, 20, 24, 28])
+    g.set_xticklabels(labels=[x for x in range(0, 160, 10)], rotation=60) #rotation=60, 
+    # g.tight_layout()
+    # g.set(ylim=(95, 100))
+    plt.savefig(infile+'.pdf')
+    plt.close()
 
 
 def main(args):
@@ -138,18 +179,31 @@ def main(args):
                 S.add(read.m, flank, aln_bp_site)
 
     # print stats:
-    print("m\te_l\te_r\ta_l\ta_r")
+    # print("m\te_l\te_r\ta_l\ta_r")
+    outfile = open(args.outfile, 'w')
+    outfile.write("tool,m,y,flank,type\n")
+    N = float(args.N)
     for m in sorted(S.stats.keys()):
-        print(m, S.stats[m]['left'][0], S.stats[m]['right'][0],S.stats[m]['left'][1], S.stats[m]['right'][1])
+        # outfile.write("{0},{1},{2},{3},{4},{5},{6},{7}\n".format(args.tool, m, S.stats[m]['left'][0]/N, S.stats[m]['left'][1]/N, S.stats[m]['left'][2]/N, S.stats[m]['right'][0]/N, S.stats[m]['right'][1]/N ,S.stats[m]['right'][2]/N))
+        outfile.write("{0},{1},{2},{3},{4}\n".format(args.tool, m, S.stats[m]['left'][0]/N, 'left', 'exact'))
+        outfile.write("{0},{1},{2},{3},{4}\n".format(args.tool, m, S.stats[m]['left'][1]/N, 'left', 'approx (<5)'))
+        outfile.write("{0},{1},{2},{3},{4}\n".format(args.tool, m, S.stats[m]['left'][2]/N, 'left', 'error'))
+        outfile.write("{0},{1},{2},{3},{4}\n".format(args.tool, m, S.stats[m]['right'][0]/N, 'right', 'exact'))
+        outfile.write("{0},{1},{2},{3},{4}\n".format(args.tool, m, S.stats[m]['right'][1]/N, 'right', 'approx (<5)'))
+        outfile.write("{0},{1},{2},{3},{4}\n".format(args.tool, m, S.stats[m]['right'][2]/N, 'right', 'error'))
 
-
+    outfile.close()
+    plot(args.outfile)
 
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Simulate references", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('samfile', type=str, help='alignment file')
+    parser.add_argument('outfile', type=str, help='output file')
+    parser.add_argument('tool', type=str, help='alignment tool')
     parser.add_argument('--B', type=int, default = 500, help='True breakpoint location (0-indexed).')
+    parser.add_argument('--N', type=int, default = 100, help='Number of experiments.')
     args = parser.parse_args()
 
 

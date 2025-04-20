@@ -1,6 +1,6 @@
 # Description
 
-Workflow for analyzing split mappings in a simple genome.
+Workflow for analyzing split mappings in a simple simulated genome without repeats.
 
 # Requirements
 
@@ -11,8 +11,8 @@ Requires strobealign, minimap2, and bwa mem in path.
 Run as follows
 
 ```
-python simulate_instance.py dataset1/
-./run_all.sh dataset1/  # runs mm2, bwa and strobealign on sim instance
+python simulate_instance.py dataset/ # simulates genome and reads with controlled breakpoints
+./run_all.sh dataset/  # runs mm2, bwa and strobealign on sim instance
 ```
 
 # Pipeline details
@@ -33,3 +33,12 @@ investigate splice mapping performance.
 
 ### evaluate_instance.py
 
+Derives statistics on the fraction of alingments were correclty split over 
+breakpoint with left flank correctly aligned and right flank correctly aligned. 
+There are three classes: 
+  - exact (exact match to bp)
+  - approximate (<5nt from true bp)
+  - error (something is aligned but >=5nt from bp)
+
+If the fractions of exact, approximate, and error do not sum to one,
+the remaining fraction are missing flanks (nothing is aligned on that side of the bp). 
