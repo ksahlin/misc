@@ -198,7 +198,7 @@ def main(args):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Simulate references", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser(description="Evaluate split mappings", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('samfile', type=str, help='alignment file')
     parser.add_argument('outfile', type=str, help='output file')
     parser.add_argument('tool', type=str, help='alignment tool')

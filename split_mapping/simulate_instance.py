@@ -44,7 +44,7 @@ def main(args):
         
     """
     mkdir_p(args.outfolder)
-    B = 500
+    B = args.B
     # simulate N "contig" pairs 
 
     ctg_pairs = []
@@ -96,6 +96,7 @@ if __name__ == '__main__':
     parser.add_argument('--error_rate', type=float, default=0.0, help='Read error rate.')
     parser.add_argument('--seglen', type=int, default=1000, help='segment length.')
     parser.add_argument('--R', type=int, default=150, help='Read length.')
+    parser.add_argument('--B', type=int, default=500, help='Breakpoint position.')
     # parser.add_argument('--canonical', action= 'store_true', help='Only simulate canonical spice sites (GT-AG).')
     parser.add_argument('--N', type=int, default=100, help='Number of experiments.')
     # parser.add_argument('--repeat_mutrate', type=float, default=0.025, help='Number of reads.')

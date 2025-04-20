@@ -11,11 +11,43 @@ Requires strobealign, minimap2, and bwa mem in path.
 Run as follows
 
 ```
-python simulate_instance.py dataset/ # simulates genome and reads with controlled breakpoints
-./run_all.sh dataset/  # runs mm2, bwa and strobealign on sim instance
+./run_all.sh dataset/
+# simulates genome and reads with controlled breakpoints
+# then runs mm2, bwa and strobealign on sim instance
+# then collects and plots alignment statistics
 ```
 
 # Pipeline details
+
+### parameters
+
+```
+# for simulate_instance.py
+positional arguments:
+  outfolder             Output file with references
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --error_rate ERROR_RATE
+                        Read error rate. (default: 0.0)
+  --seglen SEGLEN       segment length. (default: 1000)
+  --R R                 Read length. (default: 150)
+  --B B                 Breakpoint position. (default: 500)
+  --N N                 Number of experiments. (default: 100)
+
+
+evaluate_instance.py
+
+positional arguments:
+  samfile     alignment file
+  outfile     output file
+  tool        alignment tool
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --B B       True breakpoint location (0-indexed). (default: 500) # should be same as in simulate_instance.py
+  --N N       Number of experiments. (default: 100) # should be same as in simulate_instance.py
+```
 
 ### simulate_instance.py
 
