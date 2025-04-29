@@ -150,7 +150,7 @@ def plot(infile):
     # ax = sns.lineplot(data=indata, x="k", y="unique", hue="datastructure", style="chr", palette = sns.color_palette()[:7])
     # axes = g.axes
     # g.set_titles("Genome size 2^16 (repeats)")
-    g.set_axis_labels("M (#nt left of breakpoint)", "Fraction per type")
+    g.set_axis_labels("M (#nt left of breakpoint)", "Fraction")
     # g.set(ylim=(94, 99), xticks=[50,75,100,150,200,250,300,500])
     g.set(xticks=[x for x in range(0, 160, 10)]) #[0, 10, 20, 30, 40, 50, 60]
     # g.set_xticks([12, 16, 20, 24, 28])

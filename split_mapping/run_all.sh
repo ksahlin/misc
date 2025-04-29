@@ -26,7 +26,10 @@ bwa index -p $output/bwa_mem_idx $genome &> /dev/null
 bwa mem -t 1 -o $output/bwa_mem.sam $output/bwa_mem_idx $query 2> /dev/null
 python evaluate_instance.py $output/bwa_mem.sam $output/bwa_mem.csv bwa_mem
 
-strobealign -t 1 $genome $query 1> $output/strobealign.sam 2> /dev/null
-python evaluate_instance.py $output/strobealign.sam $output/strobealign.csv strobealign
+strobealign-v0.16.0 -t 1 $genome $query 1> $output/strobealign-v0.16.0.sam 2> /dev/null
+python evaluate_instance.py $output/strobealign-v0.16.0.sam $output/strobealign-v0.16.0.csv strobealign
+
+/Users/ksahlin/prefix/source/StrobeAlign/build/./strobealign -t 1 $genome $query 1> $output/strobealign-sm.sam 2> /dev/null
+python evaluate_instance.py $output/strobealign-sm.sam $output/strobealign-sm.csv strobealign
 
 
