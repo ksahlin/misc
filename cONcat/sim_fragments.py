@@ -2,6 +2,7 @@
 import random
 import argparse
 import sys
+import edlib
 # import re
 # import os
 # import errno
@@ -27,25 +28,38 @@ import sys
 #     rev_comp = ''.join([rev_nuc[nucl] for nucl in reversed(string)])
 #     return(rev_comp)
 
-def not_identical(candidate_frag, frags):
+def edit_distance(candidate_frag, frags):
     """
     Check if candidate_frag is identical to any of the fragments in frags
     """
     for frag in frags:
-        if candidate_frag == frag:
+        if edlib.align(candidate_frag, frag)['editDistance'] == 0:
             return False
     return True
-    
+
+def allowed_muts(base):
+    lst = ['A','C','G','T']
+    lst.remove(base)
+    return lst
 
 def main(args):
-    frags = [''.join([random.choice('ACGT') for i in range(args.fraglen)])]
+    frags = [''.join([random.choice('ACGT') for i in range(args.fraglen)])]*20 # 20 copies of the same fragment
+    # print(frags)
+    for i, frag in enumerate(frags):
+        muts = set(random.sample(range(len(frag)),args.mutations)) # sample fraglen*mut_rate mutation sites
+        frag_copy = "".join([frag[i] if i not in muts else random.choice(allowed_muts(frag[i])) for i in range(len(frag))])
+        frags[i] = frag_copy
+    
+    # check ed
+    eds = []
+    for i, frag_i in enumerate(frags): 
+        eds_i = []
+        for j, frag_j in enumerate(frags): 
+            eds_i.append(edlib.align(frag_i, frag_j)['editDistance'])
+        eds.append(eds_i)
+    for eds_i in eds:
+        print(eds_i)
 
-    while len(frags) < args.nr_frags:
-        frag = random.choice(frags)
-        muts = set(random.sample(range(len(frag)),int(len(frag)*args.mut_rate))) # sample fraglen*mut_rate mutation sites
-        frag_copy = "".join([frag[i] if i not in muts else  random.choice("ACGT") for i in range(len(frag))])
-        if not_identical(frag_copy, frags):
-            frags.append(frag_copy)
 
     frags_out = open(args.outfile, 'w')
     for i, frag in enumerate(frags):
@@ -58,7 +72,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Simulate references", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('outfile', type=str, help='Output file with fragments')
-    parser.add_argument('--mut_rate', type=float, default=0.2, help='mutation rate.')
+    parser.add_argument('--mutations', type=int, default=4, help='mutations.')
     parser.add_argument('--fraglen', type=int, default=20, help='segment length.')
     parser.add_argument('--nr_frags', type=int, default=20, help='Number of fragments.')
 
